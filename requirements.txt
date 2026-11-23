@@ -6,3 +6,4 @@ pydantic>=2.6.4,<3.0.0
 pydantic[email]>=2.6.4,<3.0.0
 python-dotenv>=1.0.1,<2.0.0
 cryptography>=42.0.5,<43.0.0
+alembic>=1.13.1,<2.0.0

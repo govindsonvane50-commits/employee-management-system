@@ -1,6 +1,6 @@
 # Employee Management System – REST API
 
-A production-grade RESTful API built with **FastAPI**, **SQLAlchemy ORM**, **Pydantic**, and **MySQL**.
+A production-grade RESTful API built with **FastAPI**, **SQLAlchemy ORM**, **Pydantic**, **Alembic**, and **MySQL**, organized into a clean, modular, industry-standard layered architecture.
 
 ---
 
@@ -13,6 +13,8 @@ A production-grade RESTful API built with **FastAPI**, **SQLAlchemy ORM**, **Pyd
 - **Delete Employee:** Remove an employee from the system.
 - **Search Employees:** Case-insensitive search by name or email.
 - **Data Validation & Constraints:** Enforced unique emails and non-negative salaries.
+- **Database Migrations:** Schema versioning managed via Alembic.
+- **Modular Architecture:** Clean separation across Core, Database, Models, Schemas, Repositories, Services, and Routers.
 - **Interactive Documentation:** Auto-generated Swagger UI and ReDoc.
 
 ---
@@ -23,6 +25,7 @@ A production-grade RESTful API built with **FastAPI**, **SQLAlchemy ORM**, **Pyd
 - **Server:** Uvicorn (ASGI)
 - **Database:** MySQL
 - **ORM:** SQLAlchemy
+- **Migrations:** Alembic
 - **Database Driver:** PyMySQL
 - **Data Validation:** Pydantic v2
 - **Config Management:** python-dotenv
@@ -34,21 +37,54 @@ A production-grade RESTful API built with **FastAPI**, **SQLAlchemy ORM**, **Pyd
 ```text
 employee-management-system/
 │
-├── .env                  # Database credentials (excluded from git)
-├── .env.example          # Template for required environment variables
-├── .gitignore            # Git ignore file
-├── requirements.txt      # Project dependencies
-├── README.md             # Project documentation
+├── alembic/
+│   ├── versions/
+│   │   └── 1416f7ea46ba_create_employees_table.py
+│   ├── env.py
+│   └── script.py.mako
 │
-├── database.py           # Database engine, SessionLocal, and get_db dependency
-├── models.py             # SQLAlchemy ORM models (Employee table)
-├── schemas.py            # Pydantic schemas for request/response validation
-├── crud.py               # Pure database operations (CRUD & Search)
-├── main.py               # FastAPI application entry point
+├── app/
+│   ├── __init__.py
+│   │
+│   ├── core/
+│   │   ├── __init__.py
+│   │   └── config.py                   # Environment & application settings
+│   │
+│   ├── database/
+│   │   ├── __init__.py
+│   │   └── connection.py               # Engine, SessionLocal, Base & get_db
+│   │
+│   ├── models/
+│   │   ├── __init__.py
+│   │   └── employee.py                 # SQLAlchemy ORM models
+│   │
+│   ├── schemas/
+│   │   ├── __init__.py
+│   │   └── employee.py                 # Pydantic request & response schemas
+│   │
+│   ├── repositories/
+│   │   ├── __init__.py
+│   │   └── employee_repository.py      # Database CRUD operations
+│   │
+│   ├── services/
+│   │   ├── __init__.py
+│   │   └── employee_service.py         # Business logic & error handling
+│   │
+│   ├── routers/
+│   │   ├── __init__.py
+│   │   └── employee_router.py          # API endpoints & HTTP controllers
+│   │
+│   └── main.py                         # FastAPI application entry point
 │
-└── routers/
-    ├── __init__.py       # Package marker
-    └── employees.py      # REST API route handlers
+├── tests/
+│   └── __init__.py
+│
+├── .env
+├── .env.example
+├── .gitignore
+├── alembic.ini
+├── requirements.txt
+└── README.md
 ```
 
 ---
@@ -74,7 +110,7 @@ pip install -r requirements.txt
 ```
 
 ### 4. Configure Environment Variables
-Copy `.env.example` to `.env`:
+Copy `.env.example` to `.env` and fill in your MySQL credentials:
 ```ini
 DB_HOST=localhost
 DB_PORT=3306
@@ -83,14 +119,19 @@ DB_PASSWORD=your_mysql_password
 DB_NAME=employee_management_db
 ```
 
-### 5. Create the MySQL Database
-```sql
-CREATE DATABASE IF NOT EXISTS employee_management_db;
+### 5. Run Database Migrations (Alembic)
+
+```bash
+# If your MySQL database already has the employees table:
+alembic stamp head
+
+# If setting up on a fresh/new database:
+alembic upgrade head
 ```
 
 ### 6. Run the Application
 ```bash
-uvicorn main:app --reload
+uvicorn app.main:app --reload
 ```
 
 ---

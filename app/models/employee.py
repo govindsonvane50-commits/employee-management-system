@@ -1,5 +1,6 @@
 from sqlalchemy import Column, Integer, String, Float, DateTime, CheckConstraint, func
-from database import Base
+
+from app.database.connection import Base
 
 
 class Employee(Base):
